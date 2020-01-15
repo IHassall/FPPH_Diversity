@@ -126,4 +126,16 @@ age_all_mock<-matrix(c(276,278,278,279,280,
                                    c("0-20","21-40","41-60","61-80","81-100","100+")))
 age_all_div<-diversity(age_all_mock)
 years<-c("2019","2020","2021","2022","2023")
-
+age_all_div<-data.frame(years,age_all_div)
+names(age_all_div)[names(age_all_div)=="age_all_div"]<-"Shannon"
+sapply(age_all_div,class)
+#Plot as bar chart
+ggplot(data=age_all_div,aes(x=years,y=Shannon))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Shannon H")+
+  coord_cartesian(ylim=c(1.65,1.7))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
