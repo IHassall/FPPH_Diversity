@@ -302,3 +302,15 @@ ggplot(data=age_spec_H,aes(x=species,y=Shannon))+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=45,hjust=1))
 
+####################################################
+##Area of ancient woodland from NE Ancient Woodland Index
+##Load in data
+ancient<-read.csv("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/NE/Ancient_Woodland_England.csv")
+ancient<-ancient[,c(2,8,9,10)]
+#Total the area of ancient woodland
+sum(ancient$AREA)
+#Create mock dataset of area in Km2
+ancient_mock<-matrix(c(0.3641301,0.35378,0.36778),
+                     nrow=3,
+                     dimnames=list(c("2019","2029","2039"),
+                                   c("Area")))
