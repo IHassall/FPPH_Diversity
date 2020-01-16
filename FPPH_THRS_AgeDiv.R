@@ -314,3 +314,16 @@ ancient_mock<-matrix(c(0.3641301,0.35378,0.36778),
                      nrow=3,
                      dimnames=list(c("2019","2029","2039"),
                                    c("Area")))
+ancient_mock<-cbind(ancient_mock,c("2019","2029","2039"))
+ancient_mock<-as.data.frame(ancient_mock)
+colnames(ancient_mock)
+names(ancient_mock)[names(ancient_mock)=="V2"]<-"Year"
+sapply(ancient_mock,class)
+ancient_mock$Area<-as.numeric(as.character(ancient_mock$Area))
+#Plot
+ggplot(data=ancient_mock,aes(x=Year,y=Area))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Area (Km2)")+
+  coord_cartesian(ylim=c(0.3,0.4))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
