@@ -66,6 +66,16 @@ hab_area<-aggregate(scdb_hab$Area,by=list(PrimaryHabitat=scdb_hab$PrimaryHabitat
 names(hab_area)[names(hab_area)=="x"]<-"Area"
 hab_area$Area<-format(hab_area$Area,scientific=FALSE)
 hab_area$Area<-as.numeric(hab_area$Area)
+cult_area<-aggregate(scdb_cult$Area,by=list(Cultivation=scdb_cult$Cultivation),FUN=sum)
+names(cult_area)[names(cult_area)=="x"]<-"Area"
+cult_area$Area<-format(cult_area$Area,scientific=FALSE)
+land_area<-aggregate(scdb_land$Area,by=list(PrimaryLandUse=scdb_land$PrimaryLandUse),FUN=sum)
+names(land_area)[names(land_area)=="x"]<-"Area"
+land_area$Area<-format(land_area$Area,scientific=FALSE)
+hab_area<-aggregate(scdb_hab$Area,by=list(PrimaryHabitat=scdb_hab$PrimaryHabitat),FUN=sum)
+names(hab_area)[names(hab_area)=="x"]<-"Area"
+hab_area$Area<-format(hab_area$Area,scientific=FALSE)
+
 #Convert from m2 to km2
 species_area$Area<-species_area$Area*0.000001
 cult_area$Area<-cult_area$Area*0.000001
@@ -202,6 +212,48 @@ ggplot(data=hab_fine_div,aes(x=years,y=Shannon))+
   geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
   labs(x="",y="Shannon H")+
   coord_cartesian(ylim=c(1.94,1.96))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
+
+#Broad habitat diversity
+hab_broad_t<-t(hab_broad)
+hab_broad_t<-as.matrix(hab_broad_t)
+colnames(hab_broad_t)<-as.character(unlist(hab_broad_t[1,]))
+hab_broad_t=hab_broad_t[-1,]
+hab_broad_t<-sapply(hab_broad_t,as.numeric)
+diversity(hab_broad_t)
+#Create broad scale habitat mock data
+hab_broad_mock<-matrix(c(87.6090365969,5.3093990810,5.0539321839,2.1090936816,14.7632106268,431.6019897205,6.9773839686,0.9635381525,1372.820003,0.2740643477,0.3518739900,13.3030872265,3.2224364318,6.7735505459,0.4738680780,1.0702265646,1.2303646876,0.0093113479,
+                           88.24512,5.301242,5.01249,2.10909,16.78129,433.14256,7.56822,0.87512,1389.9812,0.28124,0.351985,13.304712,3.2224,6.89712,0.47386,1.07022,1.21904,0.015691,
+                           87.56891,5.40571,5.023512,2.10909,16.99812,433.56123,7.56236,0.84578,1401.765,0.28454,0.35871,13.30672,3.2226,6.9236,0.47386,1.07022,1.21785,0.015763),
+                       nrow=18,
+                       dimnames=list(c("ACID GRASSLAND","ARABLE/HORTICULTURE","BOGS",                                               
+                                        "BOUNDARY & LINEAR FEATURES","BRACKEN",                                            
+                                        "BROADLEAVED; MIXED/YEW WOODLANDS","BUILT UP AREAS & GARDENS",                           
+                                        "CALCAREOUS GRASSLAND","CONIFEROUS WOODLANDS",                               
+                                        "DWARF SHRUB HEATH","FEN; MARSH/SWAMP",                                   
+                                        "IMPROVED GRASSLAND","INLAND ROCK",                                        
+                                        "NEUTRAL GRASSLAND","RIVERS & STREAMS",                                   
+                                        "STANDING OPEN WATER/CANALS","UNKNOWN","URBAN"),
+                                     c("2019","2020","2021")))
+
+#Calculate Shannon on mock time series data for broad habitat
+#Transpose mock dataset
+hab_broad_mock<-t(hab_broad_mock)
+#Shannon diversity index on mock data
+hab_broad_div<-diversity(hab_broad_mock)
+hab_broad_div
+#Create data frame
+hab_broad_div<-data.frame(years,hab_broad_div)
+names(hab_broad_div)[names(hab_broad_div)=="hab_broad_div"]<-"Shannon"
+#Visualise as barplot with rescaled y axis to show small differences
+ggplot(data=hab_broad_div,aes(x=years,y=Shannon))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Shannon H")+
+  coord_cartesian(ylim=c(0.89,0.90))+
   theme_bw()+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=50,hjust=1))+
