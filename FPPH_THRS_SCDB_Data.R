@@ -1,10 +1,10 @@
-##Script Name:
+##Script Name: SCDB Data for Species and Structural Diversity Analyses
 ##Author: Izzy Hassall, Ecosystems Analysis
 ##Contact (if different from above):
 ##Date Created: 2020-01-13
 ##Date Modified:
 ##Licence:
-##Abstract:
+##Abstract: 
 
 
 ##R version 3.6.1 (2019-07-05)
@@ -18,7 +18,7 @@ library(dplyr)
 library(reshape)
 library(tibble)
 
-##FPPH THRS Indicators Diversity##
+#########################################################
 ##FC SCDB Dataset to examine species and structural diversity##
 
 #Read in SCDB data
@@ -54,27 +54,21 @@ species_area<-aggregate(scdb_species$Area,by=list(PrimarySpecies=scdb_species$Pr
 names(species_area)[names(species_area)=="x"]<-"Area"
 species_area$Area<-format(species_area$Area,scientific=FALSE)
 species_area$Area<-as.numeric(species_area$Area)
+
 cult_area<-aggregate(scdb_cult$Area,by=list(Cultivation=scdb_cult$Cultivation),FUN=sum)
 names(cult_area)[names(cult_area)=="x"]<-"Area"
 cult_area$Area<-format(cult_area$Area,scientific=FALSE)
 cult_area$Area<-as.numeric(cult_area$Area)
+
 land_area<-aggregate(scdb_land$Area,by=list(PrimaryLandUse=scdb_land$PrimaryLandUse),FUN=sum)
 names(land_area)[names(land_area)=="x"]<-"Area"
 land_area$Area<-format(land_area$Area,scientific=FALSE)
 land_area$Area<-as.numeric(land_area$Area)
+
 hab_area<-aggregate(scdb_hab$Area,by=list(PrimaryHabitat=scdb_hab$PrimaryHabitat),FUN=sum)
 names(hab_area)[names(hab_area)=="x"]<-"Area"
 hab_area$Area<-format(hab_area$Area,scientific=FALSE)
 hab_area$Area<-as.numeric(hab_area$Area)
-cult_area<-aggregate(scdb_cult$Area,by=list(Cultivation=scdb_cult$Cultivation),FUN=sum)
-names(cult_area)[names(cult_area)=="x"]<-"Area"
-cult_area$Area<-format(cult_area$Area,scientific=FALSE)
-land_area<-aggregate(scdb_land$Area,by=list(PrimaryLandUse=scdb_land$PrimaryLandUse),FUN=sum)
-names(land_area)[names(land_area)=="x"]<-"Area"
-land_area$Area<-format(land_area$Area,scientific=FALSE)
-hab_area<-aggregate(scdb_hab$Area,by=list(PrimaryHabitat=scdb_hab$PrimaryHabitat),FUN=sum)
-names(hab_area)[names(hab_area)=="x"]<-"Area"
-hab_area$Area<-format(hab_area$Area,scientific=FALSE)
 
 #Convert from m2 to km2
 species_area$Area<-species_area$Area*0.000001
@@ -82,8 +76,8 @@ cult_area$Area<-cult_area$Area*0.000001
 land_area$Area<-land_area$Area*0.000001
 hab_area$Area<-hab_area$Area*0.000001
 
-#Shannon Diversity
-#SPECIES 
+#################################################################
+#SPECIES DIVERSITY
 #Transpose species_area
 species_area_t<-t(species_area)
 species_area_t<-as.matrix(species_area_t)
@@ -143,7 +137,7 @@ ggplot(data=species_div,aes(x=Year,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
-
+########################################################################
 #CULTIVATION
 cult_area_t<-t(cult_area)
 cult_area_t<-as.matrix(cult_area_t)
@@ -152,14 +146,7 @@ cult_area_t=cult_area_t[-1,]
 cult_area_t<-sapply(cult_area_t,as.numeric)
 diversity(cult_area_t)
 
-#LAND USE
-land_area_t<-t(land_area)
-land_area_t<-as.matrix(land_area_t)
-colnames(land_area_t)<-as.character(unlist(land_area_t[1,]))
-land_area_t=land_area_t[-1,]
-land_area_t<-sapply(land_area_t,as.numeric)
-diversity(land_area_t)
-
+########################################################################
 #HABITAT
 #Split into fine and broad habitat categories
 hab_fine<-hab_area[c(1:38),]
@@ -260,83 +247,45 @@ ggplot(data=hab_broad_div,aes(x=years,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
-#Broad habitat diversity
-hab_broad_t<-t(hab_broad)
-hab_broad_t<-as.matrix(hab_broad_t)
-colnames(hab_broad_t)<-as.character(unlist(hab_broad_t[1,]))
-hab_broad_t=hab_broad_t[-1,]
-hab_broad_t<-sapply(hab_broad_t,as.numeric)
-diversity(hab_broad_t)
-#Create broad scale habitat mock data
-hab_broad_mock<-matrix(c(87.6090365969,5.3093990810,5.0539321839,2.1090936816,14.7632106268,431.6019897205,6.9773839686,0.9635381525,1372.820003,0.2740643477,0.3518739900,13.3030872265,3.2224364318,6.7735505459,0.4738680780,1.0702265646,1.2303646876,0.0093113479,
-                           88.24512,5.301242,5.01249,2.10909,16.78129,433.14256,7.56822,0.87512,1389.9812,0.28124,0.351985,13.304712,3.2224,6.89712,0.47386,1.07022,1.21904,0.015691,
-                           87.56891,5.40571,5.023512,2.10909,16.99812,433.56123,7.56236,0.84578,1401.765,0.28454,0.35871,13.30672,3.2226,6.9236,0.47386,1.07022,1.21785,0.015763),
-                       nrow=18,
-                       dimnames=list(c("ACID GRASSLAND","ARABLE/HORTICULTURE","BOGS",                                               
-                                        "BOUNDARY & LINEAR FEATURES","BRACKEN",                                            
-                                        "BROADLEAVED; MIXED/YEW WOODLANDS","BUILT UP AREAS & GARDENS",                           
-                                        "CALCAREOUS GRASSLAND","CONIFEROUS WOODLANDS",                               
-                                        "DWARF SHRUB HEATH","FEN; MARSH/SWAMP",                                   
-                                        "IMPROVED GRASSLAND","INLAND ROCK",                                        
-                                        "NEUTRAL GRASSLAND","RIVERS & STREAMS",                                   
-                                        "STANDING OPEN WATER/CANALS","UNKNOWN","URBAN"),
-                                     c("2019","2020","2021")))
+########################################################################
+#LAND USE
+land_area_t<-t(land_area)
+land_area_t<-as.matrix(land_area_t)
+colnames(land_area_t)<-as.character(unlist(land_area_t[1,]))
+land_area_t=land_area_t[-1,]
+land_area_t<-sapply(land_area_t,as.numeric)
+diversity(land_area_t)
 
-#Calculate Shannon on mock time series data for broad habitat
-#Transpose mock dataset
-hab_broad_mock<-t(hab_broad_mock)
-#Shannon diversity index on mock data
-hab_broad_div<-diversity(hab_broad_mock)
-hab_broad_div
-#Create data frame
-hab_broad_div<-data.frame(years,hab_broad_div)
-names(hab_broad_div)[names(hab_broad_div)=="hab_broad_div"]<-"Shannon"
-#Visualise as barplot with rescaled y axis to show small differences
-ggplot(data=hab_broad_div,aes(x=years,y=Shannon))+
+##Selected attributes of Land Use
+#Obtain annual values from SCDB dataset to create time series of open areas
+#Create sum of open areas for each year
+#Just using the "Open" category in the SCDB Land Use column
+open<-land_area[18,]
+open_mock<-matrix(c(467.9734,466.5672,466.1246,467.0323,467.8902,468.0054,468.5623),
+                  nrow=7,
+                  dimnames=list(c("2019","2020","2021","2022","2023","2024","2025"),
+                                c("Open")))
+sapply(open_mock,class)
+open_mock<-as.character(open_mock)
+open_mock<-as.data.frame(open_mock)
+names(open_mock)[names(open_mock)=="open_mock"]<-"Open"
+open_mock$Year<-year
+open_mock$Open<-as.numeric(as.character(open_mock$Open))
+open_mock$Year<-as.factor(open_mock$Year)
+sapply(open_mock,class)
+ggplot(data=open_mock,aes(x=Year,y=Open))+
   geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
-  labs(x="",y="Shannon H")+
-  coord_cartesian(ylim=c(0.89,0.90))+
+  labs(x="",y="Open Area (Km2)")+
+  coord_cartesian(ylim=c(465,470))+
   theme_bw()+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=50,hjust=1))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
-
-##Land Use 
-##Selected attributes of Land Use and Cultivation
-#Obtain annual values from SCDB dataset to create time series of open and planted areas
-#PLANTING aspects of cultivation 
-plant<-cult_area[c(2,5,15,16),]
-plant_mock<-matrix(c(12.4264784,1.1630937,0.3172046,0.2544703,
-                     13.3789,1.28741,0.308973,0.25488,
-                     13.69871,1.322099,0.3089,0.24511,
-                     14.00012,1.3299897,0.3099812,0.23141,
-                     14.55611,1.35488,0.309124,0.23156,
-                     14.24812,1.36728,0.30495,0.23154,
-                     14.89744,1.38041,0.30123,0.24366),
-                   nrow=4,
-                   dimnames=list(c("Clear brash and direct plant","Direct plant with screef","Plant at stump","Plant at stump on existing ploughing"),
-                                 c("2019","2020","2021","2022","2023","2024","2025")))
-#Create sum of open areas for each year
-plant_mock_total<-colSums(plant_mock)
-year<-c("2019","2020","2021","2022","2023","2024","2025")
-plant_mock_total<-data.frame(year,plant_mock_total)
-names(plant_mock_total)[names(plant_mock_total)=="plant_mock_total"]<-"Total_Area"
-ggplot(data=plant_mock_total,aes(x=year,y=Total_Area))+
-  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
-  labs(x="",y="Planted Area (Km2)")+
-  theme_bw()+
-  coord_cartesian(ylim=c(14,17))+
-  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
-  theme(axis.text.x=element_text(angle=50,hjust=1))+
-  theme(axis.text.x=element_text(colour="black"))+
-  theme(axis.text.y=element_text(colour="black"))                  
-
-
-#Land use creating OPEN areas
-open<-land_area[c(5,12,18,29),]
-open_mock<-matrix(c(0.2187725,86.9912569,467.9734293,23.6763863,
+#Land use creating ALL OPEN areas (Using Burnt/Felled/Open/Unplantable or bare sections)
+open_all<-land_area[c(5,12,18,29),]
+open_all_mock<-matrix(c(0.2187725,86.9912569,467.9734293,23.6763863,
                     0.215984,86.8972,468.9084,23.7612,
                     0.214094,87.3452,470.452,23.4123,
                     0.216798,87.412,469.0908,23.5709,
@@ -347,11 +296,11 @@ open_mock<-matrix(c(0.2187725,86.9912569,467.9734293,23.6763863,
                   dimnames=list(c("Burnt","Felled","Open","Unplantable or bare"),
                                 c("2019","2020","2021","2022","2023","2024","2025")))
 #Create sum of open areas for each year
-open_mock_total<-colSums(open_mock)
+open_all_mock_total<-colSums(open_all_mock)
 year<-c("2019","2020","2021","2022","2023","2024","2025")
-open_mock_total<-data.frame(year,open_mock_total)
-names(open_mock_total)[names(open_mock_total)=="open_mock_total"]<-"Total_Area"
-ggplot(data=open_mock_total,aes(x=year,y=Total_Area))+
+open_all_mock_total<-data.frame(year,open_all_mock_total)
+names(open_all_mock_total)[names(open_all_mock_total)=="open_all_mock_total"]<-"Total_Area"
+ggplot(data=open_all_mock_total,aes(x=year,y=Total_Area))+
   geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
   labs(x="",y="Open Area (Km2)")+
   theme_bw()+
@@ -361,4 +310,25 @@ ggplot(data=open_mock_total,aes(x=year,y=Total_Area))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
-
+#Create mock dataset of felled areas using SCDB dataset as starting point
+felled<-land_area[12,]
+felled_mock<-matrix(c(86.99126,87.5341,87.6723,87.9023,88.3423,88.7746,89.0031),
+                    nrow=7,
+                    dimnames=list(c("2019","2020","2021","2022","2023","2024","2025"),
+                                  c("Felled")))
+felled_mock<-as.character(felled_mock)
+felled_mock<-as.data.frame(felled_mock)
+names(felled_mock)[names(felled_mock)=="felled_mock"]<-"Felled"
+felled_mock$Year<-year
+felled_mock$Felled<-as.numeric(as.character(felled_mock$Felled))
+felled_mock$Year<-as.factor(felled_mock$Year)
+sapply(felled_mock,class)
+ggplot(data=felled_mock,aes(x=Year,y=Felled))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Felled Area (Km2)")+
+  coord_cartesian(ylim=c(86,90))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
