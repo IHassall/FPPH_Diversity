@@ -150,6 +150,7 @@ diversity(cult_area_t)
 ########################################################################
 #HABITAT
 #Split into fine and broad habitat categories
+levels(scdb_hab$PrimaryHabitat)
 hab_fine<-hab_area[c(1:38),]
 hab_broad<-hab_area[-c(1:38),]
 #Fine habitat diversity
