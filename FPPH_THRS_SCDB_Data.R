@@ -17,6 +17,7 @@ library(plyr)
 library(dplyr)
 library(reshape)
 library(tibble)
+library(data.table)
 
 #########################################################
 ##FC SCDB Dataset to examine species and structural diversity##
@@ -295,6 +296,26 @@ open_all_mock<-matrix(c(0.2187725,86.9912569,467.9734293,23.6763863,
                   nrow=4,
                   dimnames=list(c("Burnt","Felled","Open","Unplantable or bare"),
                                 c("2019","2020","2021","2022","2023","2024","2025")))
+
+#Plot each land use as separate bar
+open_all_mock<-t(open_all_mock)
+open_all_mock<-melt(open_all_mock)
+#Alternative to melt() is "open_all_mock<-as.data.frame(as.table(open_all_mock))"
+#Change column names
+names(open_all_mock)[names(open_all_mock)=="Var1"]<-"Year"
+names(open_all_mock)[names(open_all_mock)=="Var2"]<-"LandUse"
+names(open_all_mock)[names(open_all_mock)=="value"]<-"Area"
+sapply(open_all_mock,class)
+open_all_mock$Year<-as.factor(as.character(open_all_mock$Year))
+ggplot(data=open_all_mock,aes(x=Year,y=Area,fill=LandUse))+
+  geom_bar(stat="identity",position="dodge")+
+  labs(x="",y="Area (Km2)")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
+
 #Create sum of open areas for each year
 open_all_mock_total<-colSums(open_all_mock)
 year<-c("2019","2020","2021","2022","2023","2024","2025")
