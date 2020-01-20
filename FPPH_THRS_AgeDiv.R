@@ -96,7 +96,6 @@ ggplot(data=age_div,aes(x=blocks,y=Shannon))+
 eng_age_reg<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/NFI_Prelim_BL_Ash_Tables.xls",sheet="Table A.8",range="B5:F78")
 
 #Change Column names
-names(eng_age_reg)[names(eng_age_reg)=="Principal species"]<-"Species"
 names(eng_age_reg)[names(eng_age_reg)=="Private sector"]<-"Private"
 names(eng_age_reg)[names(eng_age_reg)=="Age class (years)"]<-"AgeClass"
 colnames(eng_age_reg)
