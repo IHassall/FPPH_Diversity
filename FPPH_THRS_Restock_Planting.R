@@ -24,7 +24,11 @@ restock<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Dat
 restock<-restock[-1,]
 #Add column
 restock$Year<-c("2014-2015","2015-2016","2016-2017","2017-2018","2018-2019")
-#Restructure
+sapply(restock,class)
+restock$Year<-as.factor(restock$Year)
+#Ensure set as data frame for use in melt function
+restock<-as.data.frame(restock)
+#Restructure using melt()
 restock<-melt(restock)
 #Change column names
 names(restock)[names(restock)=="value"]<-"Area"
@@ -32,12 +36,13 @@ names(restock)[names(restock)=="variable"]<-"Woodland"
 
 #Plot with bars for each woodland type
 ggplot(data=restock,aes(x=Year,y=Area,fill=Woodland))+
-         labs(y="Area (thousand ha)")+
-         geom_bar(stat="identity",position="dodge")+
-         theme_bw()+
-         theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
-         theme(axis.text.x=element_text(angle=60,hjust=1))+
-         theme(axis.title.x=element_blank())
+        labs(y="Area (thousand ha)")+
+        geom_bar(stat="identity",position="dodge")+
+        theme_bw()+
+        theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+        theme(axis.text.x=element_text(angle=60,hjust=1,colour="black"))+
+        theme(axis.title.x=element_blank())+
+        theme(axis.text.y=element_text(colour="black"))  
 
 ##Restocking over longer timescale for all trees
 restock_all<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/Ch1_Woodland_FS2019.xlsx",sheet="data for figure 1.7",range="A5:B49")
@@ -62,6 +67,8 @@ ggplot(data=restock_all,aes(x=Year,y=Area,group=1))+
 plant<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/Ch1_Woodland_FS2019.xlsx",sheet="Table 1.13",range="B6:E12")
 plant<-plant[-1,]       
 names(plant)[names(plant)=="...1"]<-"Year"
+#Ensure set as data frame for use in melt() function
+plant<-as.data.frame(plant)
 #Restructure
 plant<-melt(plant)
 #Change column names
