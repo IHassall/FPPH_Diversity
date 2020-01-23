@@ -148,3 +148,18 @@ df_join[,19][df_join[,19]==0]<-NA
 map<-ggplot()+geom_polygon(data=df_join,aes(x=long.x,y=lat.x,group=group,fill=Size_H),colour="black")+
   theme_void()
 map
+
+##############################################################################
+
+#Can do just do the editing on the polygons??? Edit polygon attribute table??
+shp_df<-as.data.frame(shp@data)
+shp_df$Species_H<-NA
+
+##Write out shapefile
+df_join_sf<-st_as_sf(df_join,coords=c("long.y","lat.y"),crs=4326)
+df_join_sf
+df_join_sp<-as(df_join_sf,"Spatial")
+class(df_join_sp)
+df_join_sp
+st_write(df_join_sf,"div_shapefile.shp",driver="ESRI Shapefile")
+##This gives point geometry and does not show up in QGIS
