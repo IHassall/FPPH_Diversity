@@ -157,6 +157,30 @@ ggplot(data=age_reg_H,aes(x=regions,y=Shannon))+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=45,hjust=1))
 
+##Show change in total number of broadleaves of each age class over time
+#Create new mock dataset with more pronounced change
+bl_mock<-matrix(c(21,24,26,24,22,23,20,20,
+                      219,225,228,230,231,232,228,225,
+                      353,350,348,352,354,356,351,356,
+                      190,192,189,187,189,190,192,188,
+                      117,117,115,117,115,118,116,110,
+                      45,42,44,47,50,46,44,42,
+                      32,30,32,33,31,30,28,30),
+                    nrow=8,
+                    dimnames=list(c("2009-2014","2015-2020","2021-2025","2026-2030","2031-2035","2036-2040","2041-2045","2046-2050"),
+                                  c("0-10","11-20","21-40","41-60","61-80","81-100","100+")))
+bl_mock_melt<-melt(bl_mock)
+colnames(bl_mock_melt)<-c("Block","AgeClass","Total")
+ggplot(data=bl_mock_melt,aes(x=Block,y=Total,fill=AgeClass))+
+  labs(y="Number of trees (millions)")+
+  geom_bar(stat="identity")+
+  scale_fill_brewer(palette="Greens")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=60,hjust=1))+
+  theme(axis.title.x=element_blank())
+
+
 ########################################
 ##Stocked area data for both broadleaves and conifer species
 ##Using Ch1_Woodland_FS2019.xlsx dataset - Forestry Statistics 2019 from NFI
@@ -229,8 +253,8 @@ age_all$AreaTotal<-rowSums(age_all[,2:3])
 age_all_mock<-matrix(c(276,278,278,279,280,
                        324,324,323,323,322,
                        280,280,282,281,282,
-                       161,160,160,159,159,
-                       104,104,103,102,102,
+                       161,165,160,157,159,
+                       104,107,109,105,102,
                        64,64,65,64,64),
                      nrow=5,
                      dimnames=list(c("2019","2020","2021","2022","2023"),
@@ -250,6 +274,28 @@ ggplot(data=age_all_div,aes(x=years,y=Shannon))+
   theme(axis.text.x=element_text(angle=50,hjust=1))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
+
+##Stacked bar plot to show change over time using mock dataset
+#New mock dataset
+age_mock<-matrix(c(276,280,286,290,285,
+                   324,327,330,327,325,
+                   280,284,285,286,290,
+                   161,163,165,160,158,
+                   104,107,109,105,102,
+                   64,64,65,64,64),
+                 nrow=5,
+                 dimnames=list(c("2019","2020","2021","2022","2023"),
+                               c("0-20","21-40","41-60","61-80","81-100","100+")))
+age_mock<-melt(age_mock)
+colnames(age_mock)<-c("Block","AgeClass","TotalArea")
+ggplot(data=age_mock,aes(x=Block,y=TotalArea,fill=AgeClass))+
+  labs(y="Total Area (thousand ha)")+
+  geom_bar(stat="identity")+
+  scale_fill_brewer(palette="Greens")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=60,hjust=1))+
+  theme(axis.title.x=element_blank())
 
 #Create barplot showing the total area for each age class woodland type
 #Create dataframe with woodland information
