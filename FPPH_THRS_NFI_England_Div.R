@@ -10,6 +10,7 @@ library(ggplot2)
 library(plyr)
 library(dplyr)
 library(vegan)
+library(reshape)
 
 ##READ IN AND ARRANGE COUNTRIES BL AND CON DATASETS##
 #BROADLEAVES
@@ -98,5 +99,45 @@ ggplot(data=eng_div,aes(x=Blocks,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
-  
+################################################################
+##Stacked Bar Plots Over Time
+#Create mock dataset of all species (all land) over time
+eng_all_mock<-matrix(c(92.42284,92.78231,93.006981,92.897612,93.451235,93.68346,
+                       49.31392,50.01452,50.1251,50.56123,50.78925,50.9857,
+                       80.10662,79.89723,79.45213,79.23512,79.12412,80.12096,
+                       98.67758,97.9891,96.1251,94.89712,94.13212,93.91824,
+                       118.00641,118.5672,119.67234,119.1352,119.00124,118.9841,
+                       43.95191,43.6781,43.87651,43.1351,42.9756,42.56123,
+                       182.03947,182.5612,181.787612,181.2315,181.2151,181.7651,
+                       80.382,80.1029,79.89752,80.9012,80.1241,80.1251,
+                       29.81457,29.4512,30.069236,29.9875,29.74656,29.45212,
+                       40.07122,40.6741,41.7862,41.90814,41.2341,41.01952,
+                       161.57519,162.10985,162.00792,162.1262,162.12541,161.89085,
+                       104.54371,105.7823,106.9825,107.57235,107.6859,107.87623,
+                       38.99646,36.8796,36.5612,36.89074,36.67812,36.1251,
+                       34.77352,34.34612,34.21412,34.00124,33.78612,33.5634,
+                       26.24529,26.001254,24.78975,24.25346,24.01295,24.1246,
+                       30.76485,31.78458,32.05262,31.908147,32.56235,32.76812,
+                       20.88422,20.34712,19.096714,20.00195,20.45623,19.9876,
+                       12.78085,12.5612,12.6346,12.78612,12.012,12.45123,
+                       17.97287,18.8962,18.01925,17.89741,18.00149,17.98782),
+                     nrow=6)
+colnames(eng_all_mock)=species
+blocks<-c("2009-2014","2015-2020","2020-2025","2025-2030","2030-2035","2035-2040")
+rownames(eng_all_mock)=blocks
 
+#Restructure using melt()
+eng_all_mock<-melt(eng_all_mock)
+#Change column names
+colnames(eng_all_mock)<-c("Block","Species","Total")
+
+#Divided bar charts to show change over time
+#Specify order of species to correspond with NFI
+ggplot(data=eng_all_mock,aes(x=Block,y=Total,fill=Species))+
+  labs(y="Number of Trees (millions)")+
+  geom_bar(stat="identity")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=60,hjust=1))+
+  theme(axis.title.x=element_blank())
+##Too many sections for colour palette...could split into broadleaves and conifers??
