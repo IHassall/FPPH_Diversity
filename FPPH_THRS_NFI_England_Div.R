@@ -49,6 +49,7 @@ sapply(eng_con,class)
 #Remove "All broadleaves" row
 eng_con_species<-eng_con[-1,]
 
+##ALL SPECIES
 #Create single dataset with all species
 eng_all<-rbind(eng_bl_species,eng_con_species)
 sapply(eng_all,class)
@@ -102,38 +103,39 @@ ggplot(data=eng_div,aes(x=Blocks,y=Shannon))+
 ################################################################
 ##Stacked Bar Plots Over Time
 #Create mock dataset of all species (all land) over time
-eng_all_mock<-matrix(c(92.42284,92.78231,93.006981,92.897612,93.451235,93.68346,
-                       49.31392,50.01452,50.1251,50.56123,50.78925,50.9857,
-                       80.10662,79.89723,79.45213,79.23512,79.12412,80.12096,
-                       98.67758,97.9891,96.1251,94.89712,94.13212,93.91824,
-                       118.00641,118.5672,119.67234,119.1352,119.00124,118.9841,
-                       43.95191,43.6781,43.87651,43.1351,42.9756,42.56123,
-                       182.03947,182.5612,181.787612,181.2315,181.2151,181.7651,
-                       80.382,80.1029,79.89752,80.9012,80.1241,80.1251,
-                       29.81457,29.4512,30.069236,29.9875,29.74656,29.45212,
-                       40.07122,40.6741,41.7862,41.90814,41.2341,41.01952,
-                       161.57519,162.10985,162.00792,162.1262,162.12541,161.89085,
-                       104.54371,105.7823,106.9825,107.57235,107.6859,107.87623,
-                       38.99646,36.8796,36.5612,36.89074,36.67812,36.1251,
-                       34.77352,34.34612,34.21412,34.00124,33.78612,33.5634,
-                       26.24529,26.001254,24.78975,24.25346,24.01295,24.1246,
-                       30.76485,31.78458,32.05262,31.908147,32.56235,32.76812,
-                       20.88422,20.34712,19.096714,20.00195,20.45623,19.9876,
-                       12.78085,12.5612,12.6346,12.78612,12.012,12.45123,
-                       17.97287,18.8962,18.01925,17.89741,18.00149,17.98782),
+#Changes need to be large enough to be visible on bar charts
+all_mock<-matrix(c(92,94,96,92,98,93,
+                       49,54,56,60,50,55,
+                       80,75,70,79,82,89,
+                       98,91,96,100,94,90,
+                       118,110,119,125,126,118,
+                       43,45,49,55,42,37,
+                       182,180,187,180,186,181,
+                       80,85,79,89,75,80,
+                       29,32,35,28,29,34,
+                       40,44,48,41,41,37,
+                       161,165,168,157,163,160,
+                       104,107,101,109,107,110,
+                       38,42,36,30,36,45,
+                       34,39,32,28,33,40,
+                       26,21,30,24,19,26,
+                       30,34,39,29,32,36,
+                       20,26,30,20,23,19,
+                       12,12,17,22,12,12,
+                       17,18,18,11,18,17),
                      nrow=6)
-colnames(eng_all_mock)=species
+colnames(all_mock)=species
 blocks<-c("2009-2014","2015-2020","2020-2025","2025-2030","2030-2035","2035-2040")
-rownames(eng_all_mock)=blocks
+rownames(all_mock)=blocks
 
 #Restructure using melt()
-eng_all_mock<-melt(eng_all_mock)
+all_mock<-melt(all_mock)
 #Change column names
-colnames(eng_all_mock)<-c("Block","Species","Total")
+colnames(all_mock)<-c("Block","Species","Total")
 
 #Divided bar charts to show change over time
 #Specify order of species to correspond with NFI
-ggplot(data=eng_all_mock,aes(x=Block,y=Total,fill=Species))+
+ggplot(data=all_mock,aes(x=Block,y=Total,fill=Species))+
   labs(y="Number of Trees (millions)")+
   geom_bar(stat="identity")+
   theme_bw()+
@@ -141,3 +143,27 @@ ggplot(data=eng_all_mock,aes(x=Block,y=Total,fill=Species))+
   theme(axis.text.x=element_text(angle=60,hjust=1))+
   theme(axis.title.x=element_blank())
 ##Too many sections for colour palette...could split into broadleaves and conifers??
+
+#Split into broadleaves and conifers for easier visualisation
+#CONIFERS
+con_mock<-all_mock%>%filter(Species%in%c("Sitka spruce","Scots pine","Corsican pine","Norway spruce","Larches","Douglas fir","Lodgepole pine","Other conifers"))
+con_mock$Species<-factor(con_mock$Species,levels=c("Sitka spruce","Scots pine","Corsican pine","Norway spruce","Larches","Douglas fir","Lodgepole pine","Other conifers"))
+ggplot(data=con_mock,aes(x=Block,y=Total,fill=Species))+
+  labs(y="Number of Trees (millions)")+
+  geom_bar(stat="identity")+
+  theme_bw()+
+  scale_fill_brewer(palette="Set3")+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=60,hjust=1))+
+  theme(axis.title.x=element_blank())
+#BROADLEAVES
+bl_mock<-all_mock%>%filter(Species%in%c("Oak","Beech","Sycamore","Ash","Birch","Sweet chestnut","Hazel","Hawthorn","Alder","Willow","Other broadleaves"))
+bl_mock$Species<-factor(bl_mock$Species,levels=c("Oak","Beech","Sycamore","Ash","Birch","Sweet chestnut","Hazel","Hawthorn","Alder","Willow","Other broadleaves"))
+ggplot(data=bl_mock,aes(x=Block,y=Total,fill=Species))+
+  labs(y="Number of Trees (millions)")+
+  geom_bar(stat="identity")+
+  theme_bw()+
+  scale_fill_brewer(palette="Set3")+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=60,hjust=1))+
+  theme(axis.title.x=element_blank())
