@@ -33,6 +33,13 @@ names(scdb)[names(scdb)=="PRILANDUSE"]<-"PrimaryLandUse"
 names(scdb)[names(scdb)=="PRIHABITAT"]<-"PrimaryHabitat"
 names(scdb)[names(scdb)=="Shape__Area"]<-"Area"
 
+#Select only the subcompartments containing WOODLAND
+scdb1<-scdb%>%filter(PrimaryHabitat%in%c("  Lowland beech/yew woodland","  Lowland Mixed Deciduous Woodland","  Native pine woodlands","  Non HAP native pinewood","  Upland birchwoods","  Upland mixed ashwoods","  Upland oakwood","  Wet woodland","BROADLEAVED; MIXED/YEW WOODLANDS","CONIFEROUS WOODLANDS"))
+sapply(scdb,class)
+levels(scdb1$PrimaryHabitat)
+write.csv(scdb1,"C:/Users/Izzy.Hassall/Documents/Tree Health Resilience/SCDB_ForestryCommission//Woodland.csv",row.names=FALSE)
+scdb<-scdb1
+
 #Create datasets for each variable and remove blanks
 #Species
 scdb_species<-scdb[,c(1,5)]
@@ -148,20 +155,24 @@ cult_area_t<-sapply(cult_area_t,as.numeric)
 diversity(cult_area_t)
 
 ########################################################################
-#HABITAT
-#Split into fine and broad habitat categories
-levels(scdb_hab$PrimaryHabitat)
-hab_fine<-hab_area[c(1:38),]
-hab_broad<-hab_area[-c(1:38),]
+##Plot the woodland type area (km2)
+ggplot(data=hab_area,aes(x=PrimaryHabitat,y=Area))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Area (Km2)")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
+#So skewed by coniferous woodlands so not useful - could make as table instead??
+hab_area<-format(hab_area,scientific=FALSE)
+
+##UNSURE IF THIS SECTION IS RELEVANT ANYMORE BUT KEEP FOR NOW
+########################################################################
+#HABITAT DIVERSITY
 #Fine habitat diversity
-hab_fine_t<-t(hab_fine)
-hab_fine_t<-as.matrix(hab_fine_t)
-colnames(hab_fine_t)<-as.character(unlist(hab_fine_t[1,]))
-hab_fine_t=hab_fine_t[-1,]
-hab_fine_t<-sapply(hab_fine_t,as.numeric)
-diversity(hab_fine_t)
 #Create fine scale habitat mock dataset
-hab_fine_mock<-matrix(c(0.0061538194,0.0412456106,81.9336972656,0.011754573,0.6703760326,0.0007146183,0.2121085497,0.0133437908,8.228857994,2.4120975129,29.9165275268,1.1739111741,116.9416961998,1.1816143649,195.8191388902,7.8077608308,0.0581115331,0.2177308694,0.0331564463,0.0092167595,0.0272282360,47.3414541756,0.0289241096,0.2014548293,0.3116383635,0.1393523976,0.0236835422,1.5482222334,0.0109429170,2.2348946002,1.8303437706,0.0543981986,0.3689275657,52.9502322465,2.9352714397,7.0458041845,5.3823866054,1.3353282273,
+hab_mock<-matrix(c(0.0061538194,0.0412456106,81.9336972656,0.011754573,0.6703760326,0.0007146183,0.2121085497,0.0133437908,8.228857994,2.4120975129,29.9165275268,1.1739111741,116.9416961998,1.1816143649,195.8191388902,7.8077608308,0.0581115331,0.2177308694,0.0331564463,0.0092167595,0.0272282360,47.3414541756,0.0289241096,0.2014548293,0.3116383635,0.1393523976,0.0236835422,1.5482222334,0.0109429170,2.2348946002,1.8303437706,0.0543981986,0.3689275657,52.9502322465,2.9352714397,7.0458041845,5.3823866054,1.3353282273,
                         0.00616345,0.044631,82.23432,0.0091234,0.729874,0.00072334,0.2121089,0.014672,8.45891,2.56711,30.56189,1.19524,117.32541,1.00892,194.90841,7.807983,0.058111,0.218974,0.033156,0.010894,0.031085,45.34129,0.0308951,0.201354,0.31661,0.136786,0.02368,1.47098,0.011356,2.2562,1.897412,0.049878,0.368927,52.95084,2.87619,7.033592,5.23581,1.5234,
                         0.0061897,0.04487,82.2561,0.009084,0.69841,0.0007687,0.212109,0.0145142,8.78312,2.76825,30.97612,1.20984,116.78541,0.994812,194.4125,7.931254,0.058111,0.21894,0.033156,0.01241,0.030981,44.24125,0.030945,0.201354,0.31781,0.13531,0.02368,1.470312,0.011451,2.26731,1.91852,0.047821,0.3689,52.89124,2.756411,7.02364,5.125167,1.51467),
                       nrow=38,
