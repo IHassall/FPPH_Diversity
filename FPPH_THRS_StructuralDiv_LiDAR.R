@@ -65,4 +65,15 @@ ggplot(prof2_melt,aes(x=Distance,y=Height,colour=Year))+
 chm<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/EA LiDAR_NWArea/CHM/NFI_Clipped_SD38ne_CHMExtent.xlsx")
 #Remove non woodland subregions by selecting only woodland rows
 chm<-chm%>%filter(CATEGORY%in%c("Woodland"))
-ggplot(chm,aes(x=))
+
+#Create subset of just the broadleaves and conifers stands
+chm_subs<-chm%>%filter(IFT_IOA%in%c("Broadleaved","Conifer"))
+colnames(chm_subs)
+colnames(chm_subs)<-sub("_","",colnames(chm_subs))
+#New column with object number
+chm_subs$Object<-1:nrow(chm_subs)
+ggplot(chm_subs,aes(x=Object,y=mean))+
+  geom_bar(stat="identity")+
+  geom_errorbar(aes(ymin=mean-stdev,ymax=mean+stdev),width=0.2)+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
