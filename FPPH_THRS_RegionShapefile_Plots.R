@@ -2,11 +2,10 @@
 
 
 #Load packages
-require(rgdal)
-require(ggplot2)
-require(dplyr)
-require(sf)
-library(sp)
+library(rgdal)
+library(ggplot2)
+library(dplyr)
+library(sf)
 
 #Read in NUTS level 1 shapefile
 shp<-readOGR("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/NUTS/Download 10.01.2020/NUTS_Level_1_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom/NUTS_Level_1_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom.shp")
