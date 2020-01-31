@@ -63,6 +63,35 @@ ggplot(data=size_div,aes(x=blocks,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
+#########################################################################
+#Stacked bar plots over time
+#Create new mock dataset with bigger changes
+bl_mock<-matrix(c(48.59,395.35,256.78,102.93,101.36,40.35,24.32,5.40,1.94,
+                       48.12,398.00,259.12,107.24,101.67,40.89,20.00,5.38,1.75,
+                       52.56,400.23,245.15,110.95,105.89,41.52,24.67,6.24,2.00,
+                       55.12,410.67,256.72,101.87,101.12,35.78,24.90,5.12,1.74,
+                       47.45,396.89,256.89,106.23,100.98,41.90,25.16,5.42,1.75,
+                       42.75,390.41,245.52,101.56,104.87,41.80,24.80,5.29,1.74,
+                       47.34,384.11,234.31,105.96,106.35,41.51,24.52,5.78,1.73,
+                       50.61,390.45,240.89,102.24,101.89,41.61,24.78,5.89,1.79),
+                     nrow=9,
+                     dimnames=list(c("0-7","7-10","10-15","15-20","20-30","30-40","40-60","60-80","80+"),
+                                   c("2009-2014","2015-2020","2021-2025","2026-2030","2031-2035","2036-2040","2041-2045","2046-2050")))
+bl_mock_melt<-melt(bl_mock)
+colnames(bl_mock_melt)<-c("DBHClass","Block","Total")
+bl_mock_melt<-as.data.frame(bl_mock_melt)
+sapply(bl_mock_melt,class)
+bl_mock_melt$DBHClass<-factor(bl_mock_melt$DBHClass,levels=c("0-7","7-10","10-15","15-20","20-30","30-40","40-60","60-80","80+"))
+ggplot(data=bl_mock_melt,aes(x=Block,y=Total,fill=DBHClass))+
+  labs(y="Number of trees (millions)")+
+  geom_bar(stat="identity")+
+  scale_fill_brewer(palette="Greens")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=60,hjust=1))+
+  theme(axis.title.x=element_blank())
+
+##########################################################################
 #Look at regional differences as snapshot 
 ##SHANNON DIVERSITY FOR REGIONS
 eng_size_reg<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/NFI_Prelim_BL_Ash_Tables.xls",sheet="Table A.9",range="B5:F94")
@@ -133,3 +162,4 @@ ggplot(data=size_reg_H,aes(x=regions,y=Shannon))+
   theme_bw()+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=45,hjust=1))
+
