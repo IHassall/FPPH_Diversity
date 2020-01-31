@@ -74,6 +74,7 @@ map
 ########################################################################
 ##AGE DIVERSITY
 
+##Based on NUMBER OF BROADLEAVES DATA PER REGION
 #NW England	1.641346
 #NE England	1.481078
 #Yorkshire and Humber	1.474877
