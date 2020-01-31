@@ -92,6 +92,7 @@ ggplot(data=age_div,aes(x=blocks,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
+#########################################################################
 ##SHANNON DIVERSITY FOR REGIONS
 eng_age_reg<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/NFI_Prelim_BL_Ash_Tables.xls",sheet="Table A.8",range="B5:F78")
 
@@ -160,10 +161,10 @@ ggplot(data=age_reg_H,aes(x=regions,y=Shannon))+
 ##Show change in total number of broadleaves of each age class over time
 #Create new mock dataset with more pronounced change
 bl_mock<-matrix(c(21,24,26,24,22,23,20,20,
-                      219,225,228,230,231,232,228,225,
-                      353,350,348,352,354,356,351,356,
-                      190,192,189,187,189,190,192,188,
-                      117,117,115,117,115,118,116,110,
+                      219,225,228,235,231,232,228,225,
+                      353,340,332,340,345,350,351,356,
+                      190,180,189,187,189,190,192,188,
+                      117,115,115,117,115,118,116,110,
                       45,42,44,47,50,46,44,42,
                       32,30,32,33,31,30,28,30),
                     nrow=8,
@@ -171,6 +172,9 @@ bl_mock<-matrix(c(21,24,26,24,22,23,20,20,
                                   c("0-10","11-20","21-40","41-60","61-80","81-100","100+")))
 bl_mock_melt<-melt(bl_mock)
 colnames(bl_mock_melt)<-c("Block","AgeClass","Total")
+bl_mock_melt<-as.data.frame(bl_mock_melt)
+sapply(bl_mock_melt,class)
+bl_mock_melt$AgeClass<-factor(bl_mock_melt$AgeClass,levels=c("0-10","11-20","21-40","41-60","61-80","81-100","100+"))
 ggplot(data=bl_mock_melt,aes(x=Block,y=Total,fill=AgeClass))+
   labs(y="Number of trees (millions)")+
   geom_bar(stat="identity")+
@@ -181,7 +185,7 @@ ggplot(data=bl_mock_melt,aes(x=Block,y=Total,fill=AgeClass))+
   theme(axis.title.x=element_blank())
 
 
-########################################
+########################################################
 ##Stocked area data for both broadleaves and conifer species
 ##Using Ch1_Woodland_FS2019.xlsx dataset - Forestry Statistics 2019 from NFI
 ##Values are area in thousand hectares
@@ -212,7 +216,7 @@ ggplot(age_area_con,aes(x="",y=Area,fill=AgeClass))+
   scale_fill_brewer(palette="GnBu")+
   theme_void()
 
-############################################
+############################################################
 ##Broadleaves
 age_area_bl<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/Ch1_Woodland_FS2019.xlsx",sheet="Table 1.7",range="A5:C29")
 #Tidy it up
@@ -238,7 +242,7 @@ ggplot(age_area_bl,aes(x="",y=Area,fill=AgeClass))+
   scale_fill_brewer(palette="GnBu")+
   theme_void()
 
-##########################################
+########################################################
 #All trees
 #Combine to one dataframe with conifers and broadleaves
 age_all<-cbind(age_area_con,age_area_bl)
@@ -275,6 +279,8 @@ ggplot(data=age_all_div,aes(x=years,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
+
+##################################################################
 ##Stacked bar plot to show change over time using mock dataset
 #New mock dataset
 age_mock<-matrix(c(276,280,286,290,285,
@@ -288,6 +294,9 @@ age_mock<-matrix(c(276,280,286,290,285,
                                c("0-20","21-40","41-60","61-80","81-100","100+")))
 age_mock<-melt(age_mock)
 colnames(age_mock)<-c("Block","AgeClass","TotalArea")
+age_mock<-as.data.frame(age_mock)
+sapply(age_mock,class)
+age_mock$AgeClass<-factor(age_mock$AgeClass,levels=c("0-20","21-40","41-60","61-80","81-100","100+"))
 ggplot(data=age_mock,aes(x=Block,y=TotalArea,fill=AgeClass))+
   labs(y="Total Area (thousand ha)")+
   geom_bar(stat="identity")+
