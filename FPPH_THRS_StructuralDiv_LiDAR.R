@@ -91,56 +91,32 @@ cov
 
 #Create mock data of mean and sd over time
 years<-c(seq(2020,2050,1))
-chm_38ne_mock<-matrix(c(2.371,2.732,
-                        2.403,2.742,
-                        2.407,2.634,
-                        2.435,2.623,
-                        2.652,2.312,
-                        2.782,2.132,
-                        2.783,1.967,
-                        2.784,2.165,
-                        2.895,1.897,
-                        2.987,1.975,
-                        2.896,1.834,
-                        3.002,1.623,
-                        3.233,1.875,
-                        3.247,1.976,
-                        3.287,2.045,
-                        3.298,2.001,
-                        3.312,2.014,
-                        3.314,2.251,
-                        3.354,2.340,
-                        3.445,2.462,
-                        3.502,2.354,
-                        3.525,2.132,
-                        3.562,2.563,
-                        3.451,2.679,
-                        3.451,2.451,
-                        3.489,2.562,
-                        3.561,2.586,
-                        3.572,2.566,
-                        3.689,2.671,
-                        3.672,2.581,
-                        3.680,2.643),
-                      nrow=31,
-                      dimnames=list(c(years),
-                                    c("Mean","SD")))
+mock_38ne<-matrix(c(2.371,2.403,2.407,2.435,2.652,2.782,2.783,2.784,2.895,2.987,2.896,3.002,3.233,3.247,3.287,3.298,	3.312,3.314,3.354,3.445,3.502,3.525,3.562,3.451,3.451,3.489,3.561,3.572,3.689,3.672,3.680,
+                    2.732,2.742,2.634,2.623,2.312,2.132,1.967,2.165,1.897,1.975,1.834,1.623,1.875,1.976,2.045,2.001,2.014,2.251,2.34,2.462,2.354,2.132,2.563,2.679,2.451,2.562,2.586,2.566,2.671,2.581,2.643),
+                    nrow=31,
+                    dimnames=list(c(years),
+                                  c("Mean","SD")))
 #Add year as column
-chm_38ne_mock<-as.data.frame(chm_38ne_mock)
-chm_38ne_mock$Year<-years
+mock_38ne<-as.data.frame(mock_38ne)
+mock_38ne$Year<-years
 #Calculate Coefficient of Variation
-sapply(chm_38ne_mock,class)
-chm_38ne_mock$cov<-(chm_38ne_mock$Mean/chm_38ne_mock$SD)*100
+sapply(mock_38ne,class)
+mock_38ne$cov<-(mock_38ne$Mean/mock_38ne$SD)*100
 
 #Plot this over time as line with shaded SD region - mock data
-ggplot(data=chm_38ne_mock,aes(x=Year,y=Mean))+
+ggplot(data=mock_38ne,aes(x=Year,y=Mean))+
   geom_ribbon(aes(ymin=Mean-SD,ymax=Mean+SD),alpha=0.2)+
   geom_line()+
   theme_bw()+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
 
 #Plot the mean with coefficient of variation shaded ribbon
-
+ggplot(data=mock_38ne,aes(x=Year,y=Mean))+
+  geom_ribbon(aes(ymin=Mean-cov,ymax=Mean+cov),alpha=0.2)+
+  geom_line()+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
+##Too much variation to visualise like this##
 
 #########################################################################
 #Second square SD39se 
