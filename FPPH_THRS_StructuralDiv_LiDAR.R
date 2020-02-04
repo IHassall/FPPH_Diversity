@@ -85,7 +85,7 @@ ggplot(chm_38ne_subs,aes(x=Object,y=mean))+
   geom_line()+
   theme_bw()+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
-  xlab("Forest Compartment")+
+  xlab("Woodland Subcompartment")+
   ylab("Mean Height (m)")
 
 #Table detailing mean and SD of canopy height
@@ -138,7 +138,9 @@ ggplot(data=mock_38ne_2,aes(x=Year,y=Mean))+
   geom_ribbon(aes(ymin=Mean-SD,ymax=Mean+SD),alpha=0.2)+
   geom_line()+
   theme_bw()+
-  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  xlab("")+
+  ylab("Mean Canopy Height (m)")
 
 #########################################################################
 #Plot the mean with coefficient of variation shaded ribbon
