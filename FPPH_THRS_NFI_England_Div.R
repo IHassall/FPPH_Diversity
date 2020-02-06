@@ -156,6 +156,35 @@ ggplot(data=con_mock,aes(x=Block,y=Total,fill=Species))+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=60,hjust=1))+
   theme(axis.title.x=element_blank())
+
+#Proportional stacked bar chart
+#Add proportion column to dataframes
+df0914<-filter(con_mock,Block=="2009-2014")
+df1520<-filter(con_mock,Block=="2015-2020")
+df2025<-filter(con_mock,Block=="2020-2025")
+df2530<-filter(con_mock,Block=="2025-2030")
+df3035<-filter(con_mock,Block=="2030-2035")
+df3540<-filter(con_mock,Block=="2035-2040")
+df0914=mutate(df0914,Proportion=Total/sum(Total))
+df1520=mutate(df1520,Proportion=Total/sum(Total))
+df2025=mutate(df2025,Proportion=Total/sum(Total))
+df2530=mutate(df2530,Proportion=Total/sum(Total))
+df3035=mutate(df3035,Proportion=Total/sum(Total))
+df3540=mutate(df3540,Proportion=Total/sum(Total))
+#Df of proportions
+con_prop<-rbind(df0914,df1520,df2025,df2530,df3035,df3540)
+sapply(con_prop,class)
+con_prop$Species<-factor(con_prop$Species,levels=c("Sitka spruce","Scots pine","Corsican pine","Norway spruce","Larches","Douglas fir","Lodgepole pine","Other conifers"))
+#Plot proportional stacked bar chart
+ggplot(data=con_prop,aes(x=Block,y=Proportion,fill=Species))+
+  labs(y="Proportion of Total Conifers")+
+  geom_bar(stat="identity")+
+  theme_bw()+
+  scale_fill_brewer(palette="Set3")+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1))+
+  theme(axis.title.x=element_blank())
+
 #BROADLEAVES
 bl_mock<-all_mock%>%filter(Species%in%c("Oak","Beech","Sycamore","Ash","Birch","Sweet chestnut","Hazel","Hawthorn","Alder","Willow","Other broadleaves"))
 bl_mock$Species<-factor(bl_mock$Species,levels=c("Oak","Beech","Sycamore","Ash","Birch","Sweet chestnut","Hazel","Hawthorn","Alder","Willow","Other broadleaves"))
@@ -166,4 +195,31 @@ ggplot(data=bl_mock,aes(x=Block,y=Total,fill=Species))+
   scale_fill_brewer(palette="Set3")+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=60,hjust=1))+
+  theme(axis.title.x=element_blank())
+#Proportional stacked bar chart
+#Add proportion column to dataframes
+df0914<-filter(bl_mock,Block=="2009-2014")
+df1520<-filter(bl_mock,Block=="2015-2020")
+df2025<-filter(bl_mock,Block=="2020-2025")
+df2530<-filter(bl_mock,Block=="2025-2030")
+df3035<-filter(bl_mock,Block=="2030-2035")
+df3540<-filter(bl_mock,Block=="2035-2040")
+df0914=mutate(df0914,Proportion=Total/sum(Total))
+df1520=mutate(df1520,Proportion=Total/sum(Total))
+df2025=mutate(df2025,Proportion=Total/sum(Total))
+df2530=mutate(df2530,Proportion=Total/sum(Total))
+df3035=mutate(df3035,Proportion=Total/sum(Total))
+df3540=mutate(df3540,Proportion=Total/sum(Total))
+#Df of proportions
+bl_prop<-rbind(df0914,df1520,df2025,df2530,df3035,df3540)
+sapply(bl_prop,class)
+bl_prop$Species<-factor(bl_prop$Species,levels=c("Oak","Beech","Sycamore","Ash","Birch","Sweet chestnut","Hazel","Hawthorn","Alder","Willow","Other broadleaves"))
+#Plot proportional stacked bar chart
+ggplot(data=bl_prop,aes(x=Block,y=Proportion,fill=Species))+
+  labs(y="Proportion of Total Broadleaves")+
+  geom_bar(stat="identity")+
+  theme_bw()+
+  scale_fill_brewer(palette="Set3")+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1))+
   theme(axis.title.x=element_blank())
