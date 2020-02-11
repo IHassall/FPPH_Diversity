@@ -63,6 +63,19 @@ ggplot(data=size_div,aes(x=blocks,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
+#Calculate ENS of DBH Broadleaves diversity
+size_div$ENS<-exp(size_div$Shannon)
+ggplot(data=size_div,aes(x=blocks,y=ENS))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Effective Number of DBH Classes")+
+  coord_cartesian(ylim=c(4.9,5.0))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
+
+
 #########################################################################
 #Stacked bar plots over time
 #Create new mock dataset with bigger changes
