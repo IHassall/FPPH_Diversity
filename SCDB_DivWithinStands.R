@@ -12,6 +12,7 @@
 library(sf)
 library(rgdal)
 library(dplyr)
+library(tibble)
 library(ggplot2)
 library(reshape2)
 library(vegan)
@@ -59,6 +60,23 @@ block_H<-data.frame(blocks,div)
 mean(block_H$div)
 sd(block_H$div)
 
+#Plot mean and SD block diversity over time
+block_mock<-matrix(c(2.040465,2.022412,2.15723,2.32111,2.56178,2.34167,2.48934,2.73498,2.84529,2.34756,2.12166,2.00465,
+                     0.5768735,0.60342,0.62341,0.63676,0.68452,0.667834,0.531211,0.493412,0.365412,0.321231,0.57252,0.57984),
+                   nrow=12,
+                   dimnames=list(c(2019:2030),
+                                 c("Mean","SD")))
+block_mock<-as.data.frame(block_mock)
+block_mock<-block_mock%>%rownames_to_column("Year")
+ggplot(data=block_mock,aes(x=Year,y=Mean))+
+  geom_bar(stat="identity",fill="grey")+
+  geom_errorbar(aes(ymin=Mean-SD,ymax=Mean+SD),width=0.2)+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  xlab("")+
+  ylab("Mean Block Shannon Diversity")
+
+       
 ##############################################################
 #Calculate Shannon H per compartment (9900)
 #DF for compartments
