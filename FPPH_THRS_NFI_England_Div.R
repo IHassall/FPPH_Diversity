@@ -102,16 +102,16 @@ ggplot(data=eng_div,aes(x=Blocks,y=Shannon))+
 
 #Calculate ENS for all species 
 eng_div$ENS<-exp(eng_div$Shannon)
-ggplot(data=eng_div,aes(x=blocks,y=ENS))+
-  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
-  labs(x="",y="Effective Number of Species")+
+div_plot<-ggplot(data=eng_div,aes(x=blocks,y=ENS))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="palegreen2")+
   coord_cartesian(ylim=c(14.8,15.0))+
+  labs(x="",y="Effective Number of Species")+
   theme_bw()+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=50,hjust=1))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
-
+div_plot+theme(aspect.ratio=0.9)
 
 ################################################################
 ##Stacked Bar Plots Over Time
