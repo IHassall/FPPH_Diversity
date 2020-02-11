@@ -14,6 +14,7 @@ library(rgdal)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
+library(vegan)
 
 scdb<-st_read("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/SCDB/National_Forest_Estate_Subcompartments_England_2019/National_Forest_Estate_Subcompartments_England_2019.shp")
 reg<-st_read("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/NUTS/Download_10.01.2020/NUTS_Level_1_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom/NUTS_Level_1_January_2018_Full_Clipped_Boundaries_in_the_United_Kingdom.shp")
@@ -24,7 +25,10 @@ attr(reg,"sf_column")
 #Print first three features
 print(scdb[1:40],n=3)
 print(reg[1:10],n=3)
-
+#Remove any entries not in woodland
+levels(scdb$PRILANDUSE)
+scdb<-scdb%>%filter(PRILANDUSE%in%c("High Forest","Non-plantation research","Partially Intruded Broadleaf","Research Plantation","Seed Orchard","Seed Stand","Worked Coppice"))
+levels(scdb$PRILANDUSE)
 ##############################################################
 #Use BLOCK attribute to generate diversity per forest block/stand
 #Create smaller dataset with fewer variables
@@ -282,6 +286,36 @@ ggplot(comp_reg,aes(x=Region,y=Mean))+
   xlab("")+
   ylab("Mean Compartment Shannon Diversity")
 
+#Plot as shaded map
+#Add species diversity column to data frame
+reg$Comp_H<-NA
+#Fill Block_H column with values according to regions
+reg<-reg%>%mutate(Comp_H=case_when(nuts118nm=="North East (England)" ~ "0.5001757",
+                                    nuts118nm=="North West (England)" ~ "0.6238855",
+                                    nuts118nm=="Scotland" ~ "0",
+                                    nuts118nm=="Northern Ireland" ~ "0",
+                                    nuts118nm=="East Midlands (England)" ~ "0.6238855",
+                                    nuts118nm=="West Midlands (England)" ~ "0.8488028",
+                                    nuts118nm=="East of England" ~ "0.5786850",
+                                    nuts118nm=="South East (England)" ~ "0.7896011",
+                                    nuts118nm=="London" ~ "0.7896011",
+                                    nuts118nm=="South West (England)" ~ "0.8402446",
+                                    nuts118nm=="Wales" ~ "0",
+                                    nuts118nm=="Yorkshire and The Humber" ~ "0.7342868"))
+reg<-reg%>%mutate(Comp_H=na_if(Comp_H,"0"))
+
+#Print to check
+print(reg[1:12],n=12)
+
+#Set Comp H as numeric
+sapply(reg,class)
+reg$Comp_H<-as.numeric(reg$Comp_H)
+#Plot sf object using ggplot and scale fill according to Species H
+ggplot(data=reg)+
+  geom_sf(aes(fill=Comp_H))+
+  scale_fill_viridis_c(option="plasma")+
+  theme_bw()
+
 #############################################################
 #Generate diversity of blocks per region
 #NW
@@ -449,6 +483,55 @@ ggplot(block_reg,aes(x=Region,y=Mean))+
   xlab("")+
   ylab("Mean Block Shannon Diversity")
 
+#Plot as shaded map
+#Add species diversity column to data frame
+reg$Block_H<-NA
+#Fill Block_H column with values according to regions
+reg<-reg%>%mutate(Block_H=case_when(nuts118nm=="North East (England)" ~ "1.207486",
+                                    nuts118nm=="North West (England)" ~ "1.362861",
+                                    nuts118nm=="Scotland" ~ "0",
+                                    nuts118nm=="Northern Ireland" ~ "0",
+                                    nuts118nm=="East Midlands (England)" ~ "1.574219",
+                                    nuts118nm=="West Midlands (England)" ~ "1.901147",
+                                    nuts118nm=="East of England" ~ "1.425475",
+                                    nuts118nm=="South East (England)" ~ "1.722581",
+                                    nuts118nm=="London" ~ "1.722581",
+                                    nuts118nm=="South West (England)" ~ "1.773293",
+                                    nuts118nm=="Wales" ~ "0",
+                                    nuts118nm=="Yorkshire and The Humber" ~ "1.689696"))
+reg<-reg%>%mutate(Block_H=na_if(Block_H,"0"))
+
+#Print to check
+print(reg[1:11],n=12)
+
+#Set Block H as numeric
+sapply(reg,class)
+reg$Block_H<-as.numeric(reg$Block_H)
+#Plot sf object using ggplot and scale fill according to Species H
+ggplot(data=reg)+
+  geom_sf(aes(fill=Block_H))+
+  scale_fill_viridis_c(option="plasma")+
+  theme_bw()
+
+###################################################################
+#Combining the SE and London polygons
+reg$group<-c("1","2","3","4","5","6","7","7","8","9","10","11")
+reg%>%split(.$group)%>%
+  lapply(st_union)%>%
+  do.call(c, .)
+ggplot(data=reg)+
+  geom_sf()
+###NOT WORKED - NEED TO ASK WHY NOT
+
+###################################################################
+#Retrieve current CRS and save as crs
+st_crs(reg)
+crs<-"+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +datum=OSGB36 +units=m +no_defs"
+
+#Write out shapefile
+st_write(reg,"Block_Comp_SCDB_H.shp")
+
 ###################################################################
 #Could use the SCDB to generate diversity within stands
 #Eg compartment diversity within blocks??
+
