@@ -92,6 +92,18 @@ ggplot(data=age_div,aes(x=blocks,y=Shannon))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
 
+##Calculate ENS from mock broadleaves data
+age_div$ENS<-exp(age_div$Shannon)
+ggplot(data=age_div,aes(x=blocks,y=ENS))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Effective Number of Age Classes")+
+  coord_cartesian(ylim=c(5.0,5.05))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
+
 #########################################################################
 ##SHANNON DIVERSITY FOR REGIONS
 eng_age_reg<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/NFI_Prelim_BL_Ash_Tables.xls",sheet="Table A.8",range="B5:F78")
