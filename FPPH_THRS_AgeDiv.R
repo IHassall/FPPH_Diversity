@@ -94,7 +94,7 @@ ggplot(data=age_div,aes(x=blocks,y=Shannon))+
 
 ##Calculate ENS from mock broadleaves data
 age_div$ENS<-exp(age_div$Shannon)
-ggplot(data=age_div,aes(x=blocks,y=ENS))+
+age_plot<-ggplot(data=age_div,aes(x=blocks,y=ENS))+
   geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
   labs(x="",y="Effective Number of Age Classes")+
   coord_cartesian(ylim=c(5.0,5.05))+
@@ -103,6 +103,8 @@ ggplot(data=age_div,aes(x=blocks,y=ENS))+
   theme(axis.text.x=element_text(angle=50,hjust=1))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
+age_plot+theme(aspect.ratio=0.9)
+
 
 #########################################################################
 ##SHANNON DIVERSITY FOR REGIONS
