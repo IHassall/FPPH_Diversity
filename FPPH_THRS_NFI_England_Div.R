@@ -111,7 +111,7 @@ div_plot<-ggplot(data=eng_div,aes(x=blocks,y=ENS))+
   theme(axis.text.x=element_text(angle=50,hjust=1))+
   theme(axis.text.x=element_text(colour="black"))+
   theme(axis.text.y=element_text(colour="black"))
-div_plot+theme(aspect.ratio=0.9)
+div_plot+theme(aspect.ratio=0.5)
 
 ################################################################
 ##Stacked Bar Plots Over Time
@@ -236,3 +236,4 @@ ggplot(data=bl_prop,aes(x=Block,y=Proportion,fill=Species))+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=45,hjust=1))+
   theme(axis.title.x=element_blank())
+

@@ -30,20 +30,34 @@ print(reg[1:10],n=3)
 levels(scdb$PRILANDUSE)
 scdb<-scdb%>%filter(PRILANDUSE%in%c("High Forest","Non-plantation research","Partially Intruded Broadleaf","Research Plantation","Seed Orchard","Seed Stand","Worked Coppice"))
 levels(scdb$PRILANDUSE)
+
+print(scdb[1:40],n=3)
+#Columns needed: COMPTMENT, BLOCK, PRISPECIES, SECSPECIES, TERSPECIES, PRIPCTAREA,SECPCTAREA, TERPCTAREA, Shape__Are,geometry
+scdb<-scdb%>%select("COMPTMENT","BLOCK","PRISPECIES","SECSPECIES","TERSPECIES","PRIPCTAREA","SECPCTAREA","TERPCTAREA","Shape__Are","geometry")
+#Could use this dataset to calculate the area per species per compartment (pri, sec and ter)
+#Create columns of area of each primary, secondary and tertiary species
+scdb<-scdb%>%mutate(Pri=(Shape__Are/100)*PRIPCTAREA)
+scdb<-scdb%>%mutate(Sec=(Shape__Are/100)*SECPCTAREA)
+scdb<-scdb%>%mutate(Ter=(Shape__Are/100)*TERPCTAREA)
+print(scdb[1:13],n=3)
+
+#Remove columns not needed
+scdb<-scdb%>%select("COMPTMENT","BLOCK","PRISPECIES","SECSPECIES","TERSPECIES","Pri","Sec","Ter","Shape__Are")
+#Remove geometry data so just df
+st_geometry(scdb)<-NULL
+class(scdb)
+sapply(scdb,class)
+#Remove NA data entries
+scdb<-na.omit(scdb)
+
+##START FROM HERE!!!####
 ##############################################################
 #Use BLOCK attribute to generate diversity per forest block/stand
-#Create smaller dataset with fewer variables
 colnames(scdb)
-scdb_2<-scdb%>%select("BLOCK","PRISPECIES","Shape__Are")
-sapply(scdb_2,class)
-class(scdb_2)
-#Remove geometry data so just df
-st_geometry(scdb_2)<-NULL
-class(scdb_2)
-sapply(scdb_2,class)
-scdb_2$BLOCK<-as.factor(scdb_2$BLOCK)
-#Remove NA data entries
-scdb_spec<-na.omit(scdb_2)
+scdb_spec<-scdb%>%select("BLOCK","PRISPECIES","Shape__Are")
+sapply(scdb_spec,class)
+#Remove geometry column
+st_geometry(scdb_spec)<-NULL
 #Restructure data frame
 melt<-melt(scdb_spec,id=c("BLOCK","PRISPECIES"))
 scdb_spec<-dcast(melt,BLOCK~PRISPECIES,sum)
@@ -55,7 +69,8 @@ new<-dcast(melt,BLOCK+PRISPECIES~variable,sum)
 div<-diversity(scdb_spec[,2:103])
 blocks<-scdb_spec$BLOCK
 block_H<-data.frame(blocks,div)
-
+#Remove last row as div is 0
+block_H<-block_H[-99,]
 #Mean and SD of block diversity for England
 mean(block_H$div)
 sd(block_H$div)
@@ -76,7 +91,36 @@ ggplot(data=block_mock,aes(x=Year,y=Mean))+
   xlab("")+
   ylab("Mean Block Shannon Diversity")
 
-       
+#Generate ENS on blocks
+block_H$ens<-exp(block_H$div)
+mean(block_H$ens)
+sd(block_H$ens)
+
+#Convert mock data to ens
+ens_mock<-matrix(c(8.762,7.556,8.647,10.186,12.958,10.398,12.053,15.409,17.206,15.460,12.335,14.081,
+                     3.627,3.412,2.897,2.789,3.562,4.873,5.341,5.004,5.121,5.623,5.462,5.712),
+                   nrow=12,
+                   dimnames=list(c(2019:2030),
+                                 c("Mean","SD")))
+ens_mock<-as.data.frame(ens_mock)
+ens_mock<-ens_mock%>%rownames_to_column("Year")
+sapply(ens_mock,class)
+ens_plot<-ggplot(data=ens_mock,aes(x=Year,y=Mean,group=1))+
+  geom_ribbon(aes(ymin=Mean-SD,ymax=Mean+SD),fill="grey87")+
+  geom_line(aes(y=Mean))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank())+
+  theme(panel.grid.minor=element_blank())+
+  scale_x_discrete(expand=c(0,0))+
+  labs(x="",y="Mean ENS")
+ens_plot+theme(aspect.ratio=1)
+
+ens_plot2<-ggplot()+
+  geom_smooth(data=ens_mock,x=Year,y=Mean,ymin=Mean-SD,ymax=Mean+SD,stat="identity")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank())+
+  theme(panel.grid.minor=element_blank())
+ens_plot+theme(aspect.ratio=1)
 ##############################################################
 #Calculate Shannon H per compartment (9900)
 #DF for compartments
@@ -350,9 +394,13 @@ nw_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(nw_block[,2:60])
 nw_block_H<-data.frame(nw_block$BLOCK,div)
+nw_block_H$ENS<-exp(nw_block_H$div)
 #Mean and SD of block diversity for NW
 mean(nw_block_H$div)
 sd(nw_block_H$div)
+#Mean and SD of block ENS
+mean(nw_block_H$ENS)
+sd(nw_block_H$ENS)
 
 #NE
 ne_block<-sc_ne%>%select("BLOCK","PRISPECIES","Shape__Are")
@@ -368,9 +416,13 @@ ne_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(ne_block[,2:47])
 ne_block_H<-data.frame(ne_block$BLOCK,div)
+ne_block_H$ENS<-exp(ne_block_H$div)
 #Mean and SD of block diversity for NE
 mean(ne_block_H$div)
 sd(ne_block_H$div)
+#Mean and SD of block ENS
+mean(ne_block_H$ENS)
+sd(ne_block_H$ENS)
 
 #YH
 yh_block<-sc_yh%>%select("BLOCK","PRISPECIES","Shape__Are")
@@ -386,9 +438,13 @@ yh_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(yh_block[,2:57])
 yh_block_H<-data.frame(yh_block$BLOCK,div)
+yh_block_H$ENS<-exp(yh_block_H$div)
 #Mean and SD of block diversity for YH
 mean(yh_block_H$div)
 sd(yh_block_H$div)
+#Mean and SD of block ENS
+mean(yh_block_H$ENS)
+sd(yh_block_H$ENS)
 
 #EM
 em_block<-sc_em%>%select("BLOCK","PRISPECIES","Shape__Are")
@@ -404,9 +460,14 @@ em_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(em_block[,2:60])
 em_block_H<-data.frame(em_block$BLOCK,div)
+em_block_H$ENS<-exp(em_block_H$div)
 #Mean and SD of block diversity for EM
 mean(em_block_H$div)
 sd(em_block_H$div)
+#Mean and SD of block ENS
+mean(em_block_H$ENS)
+sd(em_block_H$ENS)
+
 
 #EE
 ee_block<-sc_ee%>%select("BLOCK","PRISPECIES","Shape__Are")
@@ -422,9 +483,13 @@ ee_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(ee_block[,2:75])
 ee_block_H<-data.frame(ee_block$BLOCK,div)
+ee_block_H$ENS<-exp(ee_block_H$div)
 #Mean and SD of block diversity for EE
 mean(ee_block_H$div)
 sd(ee_block_H$div)
+#Mean and SD of block ENS
+mean(ee_block_H$ENS)
+sd(ee_block_H$ENS)
 
 #SEL
 sel_block<-sc_sel%>%select("BLOCK","PRISPECIES","Shape__Are")
@@ -440,9 +505,13 @@ sel_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(sel_block[,2:63])
 sel_block_H<-data.frame(sel_block$BLOCK,div)
+sel_block_H$ENS<-exp(sel_block_H$div)
 #Mean and SD of block diversity for SEL
 mean(sel_block_H$div)
 sd(sel_block_H$div)
+#Mean and SD of block ENS
+mean(sel_block_H$ENS)
+sd(sel_block_H$ENS)
 
 #SW
 sw_block<-sc_sw%>%select("BLOCK","PRISPECIES","Shape__Are")
@@ -458,9 +527,13 @@ sw_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(sw_block[,2:75])
 sw_block_H<-data.frame(sw_block$BLOCK,div)
+sw_block_H$ENS<-exp(sw_block_H$div)
 #Mean and SD of block diversity for SW
 mean(sw_block_H$div)
 sd(sw_block_H$div)
+#Mean and SD of block ENS
+mean(sw_block_H$ENS)
+sd(sw_block_H$ENS)
 
 #WM
 wm_block<-sc_wm%>%select("BLOCK","PRISPECIES","Shape__Are")
@@ -476,20 +549,24 @@ wm_block<-dcast(melt,BLOCK~PRISPECIES,sum)
 #Generate Shannon Diversity on blocks
 div<-diversity(wm_block[,2:56])
 wm_block_H<-data.frame(wm_block$BLOCK,div)
+wm_block_H$ENS<-exp(wm_block_H$div)
 #Mean and SD of block diversity for WM
 mean(wm_block_H$div)
 sd(wm_block_H$div)
+#Mean and SD of block ENS
+mean(wm_block_H$ENS)
+sd(wm_block_H$ENS)
 
 #Create DF of mean and SD of block diversity per region
 reg<-c("NW","NE","YH","EM","EE","SEL","SW","WM")
-nw<-data.frame("Mean"=mean(nw_block_H$div),"SD"=sd(nw_block_H$div))
-ne<-data.frame("Mean"=mean(ne_block_H$div),"SD"=sd(ne_block_H$div))
-yh<-data.frame("Mean"=mean(yh_block_H$div),"SD"=sd(yh_block_H$div))
-em<-data.frame("Mean"=mean(em_block_H$div),"SD"=sd(em_block_H$div))
-ee<-data.frame("Mean"=mean(ee_block_H$div),"SD"=sd(ee_block_H$div))
-sel<-data.frame("Mean"=mean(sel_block_H$div),"SD"=sd(sel_block_H$div))
-sw<-data.frame("Mean"=mean(sw_block_H$div),"SD"=sd(sw_block_H$div))
-wm<-data.frame("Mean"=mean(wm_block_H$div),"SD"=sd(wm_block_H$div))
+nw<-data.frame("Mean"=mean(nw_block_H$ENS),"SD"=sd(nw_block_H$ENS))
+ne<-data.frame("Mean"=mean(ne_block_H$ENS),"SD"=sd(ne_block_H$ENS))
+yh<-data.frame("Mean"=mean(yh_block_H$ENS),"SD"=sd(yh_block_H$ENS))
+em<-data.frame("Mean"=mean(em_block_H$ENS),"SD"=sd(em_block_H$ENS))
+ee<-data.frame("Mean"=mean(ee_block_H$ENS),"SD"=sd(ee_block_H$ENS))
+sel<-data.frame("Mean"=mean(sel_block_H$ENS),"SD"=sd(sel_block_H$ENS))
+sw<-data.frame("Mean"=mean(sw_block_H$ENS),"SD"=sd(sw_block_H$ENS))
+wm<-data.frame("Mean"=mean(wm_block_H$ENS),"SD"=sd(wm_block_H$ENS))
 block_reg<-rbind(nw,ne,yh,em,ee,sel,sw,wm)
 block_reg$Region<-factor(reg,levels=c("NW","NE","YH","EM","EE","SEL","SW","WM"))
 
@@ -499,7 +576,19 @@ ggplot(block_reg,aes(x=Region,y=Mean))+
   theme_bw()+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   xlab("")+
-  ylab("Mean Block Shannon Diversity")
+  ylab("Mean Block ENS")+
+  theme(aspect.ratio=1)
+
+#Generate ENS dataset and plot for block diversity of regions
+reg_ens<-matrix(c(1.362861,1.207486,1.689696,1.574219,1.425375,1.722581,1.773293,1.901147),
+                nrow=8)
+reg_ens<-as.data.frame(reg_ens)
+reg_ens$Region<-c("NW","NE","YH","EM","EE","SEL","SW","WM")
+reg_ens$Region<-factor(reg_ens$Region,levels=c("NW","NE","YH","EM","EE","SEL","SW","WM"))
+reg_ens$ENS<-exp(reg_ens$V1)
+reg_ens<-reg_ens[,2:3]
+
+
 
 #Plot as shaded map
 #Add species diversity column to data frame

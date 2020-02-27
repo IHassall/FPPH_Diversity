@@ -26,61 +26,7 @@ library(reshape)
 #Interim estimates at March 2012 - data I was already using in other scripts 
 
 ###Change existing graphs so that mock data shows a general trend and more distinct changes###
-
-##READ IN AND ARRANGE COUNTRIES BL AND CON DATASETS##
-#BROADLEAVES
-eng_bl<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/NFI_Prelim_BL_Ash_Tables.xls",sheet="Table 10",range="B5:F19")
-#Remove irrelevant columns and rows
-eng_bl<-eng_bl[-c(1,2),][,-4]
-#Change Column names
-names(eng_bl)[names(eng_bl)=="Principal species"]<-"Species"
-names(eng_bl)[names(eng_bl)=="Private sector"]<-"Private"
-colnames(eng_bl)
-#Specify column type
-sapply(eng_bl,class)
-eng_bl$Total<-as.numeric(eng_bl$Total)
-eng_bl$Private<-as.numeric(eng_bl$Private)
-eng_bl$FC<-as.numeric(eng_bl$FC)
-eng_bl$Species<-as.factor(eng_bl$Species)
-sapply(eng_bl,class)
-#Remove "All broadleaves" row
-eng_bl_species<-eng_bl[-1,]
-
-#CONIFERS
-eng_con<-read_excel("J:/GISprojects/Ecosystems Analysis/FPPH/THRS indicators/Data/National Forest Inventory England/Inventory reports/FR_NFI_NumberConiferTreesInGB.xlsx",sheet="Table 1",range="B5:F16")
-#Remove irrelevant columns and rows
-eng_con<-eng_con[-c(1,2),][,-4]
-#Change Column names
-names(eng_con)[names(eng_con)=="Principal species"]<-"Species"
-names(eng_con)[names(eng_con)=="Private sector"]<-"Private"
-colnames(eng_bl)
-#Specify column type
-sapply(eng_con,class)
-eng_con$Total<-as.numeric(eng_con$Total)
-eng_con$Private<-as.numeric(eng_con$Private)
-eng_con$FC<-as.numeric(eng_con$FC)
-eng_con$Species<-as.factor(eng_con$Species)
-sapply(eng_con,class)
-#Remove "All broadleaves" row
-eng_con_species<-eng_con[-1,]
-
-##ALL SPECIES
-#Create single dataset with all species
-eng_all<-rbind(eng_bl_species,eng_con_species)
-sapply(eng_all,class)
-
-#List species
-species<-c("Oak","Beech","Sycamore","Ash","Birch","Sweet chestnut","Hazel","Hawthorn","Alder","Willow","Other broadleaves","Sitka spruce","Scots pine","Corsican pine","Norway spruce","Larches","Douglas fir","Lodgepole pine","Other conifers")
-#Remove irrelevant columns
-eng_all_div<-eng_all[,-c(1,2,3)]
-#Set as data matrix
-eng_all_div<-data.matrix(eng_all_div)
-
-#Calculate Shannon H
-eng_all_H<-diversity(eng_all_div)
-eng_all_H
-
-########################################
+##SPECIES##################################################
 #Generate mock dataset to show changes in SPECIES diversity over time
 #Based on area in thousand ha
 #FOR ALL SPECIES WITH OVER 40,000 HA
@@ -101,7 +47,7 @@ all_mock<-matrix(c(151,155,155,160,165,170,
                    84,86,88,90,93,90),
                  nrow=6)
 colnames(all_mock)=species
-blocks<-c("2009-2014","2015-2020","2020-2025","2025-2030","2030-2035","2035-2040")
+blocks<-c("2009-2014","2015-2020","2021-2025","2026-2030","2031-2035","2036-2040")
 rownames(all_mock)=blocks
 
 #Restructure using melt()
@@ -135,18 +81,17 @@ all_mock_cut<-matrix(c(151,160,160,190,234,260,
                    164,155,170,166,190,204),
                  nrow=6)
 colnames(all_mock_cut)=species_cut
-blocks<-c("2009-2014","2015-2020","2020-2025","2025-2030","2030-2035","2035-2040")
 rownames(all_mock_cut)=blocks
 
 #Restructure using melt()
-all_mock_cut<-melt(all_mock_cut)
+all_mock_melt<-melt(all_mock_cut)
 #Change column names
-colnames(all_mock_cut)<-c("Block","Species","Total")
+colnames(all_mock_melt)<-c("Block","Species","Total")
 
 #Divided bar charts to show change over time
 #Specify order of species to correspond with NFI
-all_mock_cut$Species<-factor(all_mock_cut$Species,levels=c("Oak","Beech","Sycamore","Ash","Birch","Hazel","Other broadleaves","Sitka spruce","Scots pine","Other conifers"))
-plot<-ggplot(data=all_mock_cut,aes(x=Block,y=Total,fill=Species))+
+all_mock_melt$Species<-factor(all_mock_melt$Species,levels=c("Oak","Beech","Sycamore","Ash","Birch","Hazel","Other broadleaves","Sitka spruce","Scots pine","Other conifers"))
+plot<-ggplot(data=all_mock_melt,aes(x=Block,y=Total,fill=Species))+
   labs(y="Area (1000 ha)")+
   geom_bar(stat="identity")+
   scale_fill_brewer(palette="Set3")+
@@ -159,12 +104,12 @@ plot+theme(aspect.ratio=1)
 ################################################################
 #Proportional stacked bar chart
 #Add proportion column to df
-df0914<-filter(all_mock_cut,Block=="2009-2014")
-df1520<-filter(all_mock_cut,Block=="2015-2020")
-df2025<-filter(all_mock_cut,Block=="2020-2025")
-df2530<-filter(all_mock_cut,Block=="2025-2030")
-df3035<-filter(all_mock_cut,Block=="2030-2035")
-df3540<-filter(all_mock_cut,Block=="2035-2040")
+df0914<-filter(all_mock_melt,Block=="2009-2014")
+df1520<-filter(all_mock_melt,Block=="2015-2020")
+df2025<-filter(all_mock_melt,Block=="2021-2025")
+df2530<-filter(all_mock_melt,Block=="2026-2030")
+df3035<-filter(all_mock_melt,Block=="2031-2035")
+df3540<-filter(all_mock_melt,Block=="2036-2040")
 df0914=mutate(df0914,Proportion=Total/sum(Total))
 df1520=mutate(df1520,Proportion=Total/sum(Total))
 df2025=mutate(df2025,Proportion=Total/sum(Total))
@@ -187,22 +132,6 @@ plot<-ggplot(data=all_prop,aes(x=Block,y=Proportion,fill=Species))+
 plot+theme(aspect.ratio=1)
 
 ###########################################################
-species_cut<-c("Oak","Beech","Sycamore","Ash","Birch","Hazel","Other broadleaves","Sitka spruce","Scots pine","Other conifers")
-all_mock_cut<-matrix(c(151,160,160,190,234,260,
-                       59,70,65,78,80,89,
-                       74,90,120,85,90,134,
-                       120,129,110,120,134,140,
-                       90,112,85,110,75,60,
-                       64,69,75,68,85,90,
-                       289,300,320,300,305,305,
-                       80,93,95,99,108,120,
-                       61,54,50,68,73,70,
-                       164,155,170,166,190,204),
-                     nrow=6)
-colnames(all_mock_cut)=species_cut
-blocks<-c("2009-2014","2015-2020","2020-2025","2025-2030","2030-2035","2035-2040")
-rownames(all_mock_cut)=blocks
-
 #Shannon diversity index on mock data
 all_mock_div<-diversity(all_mock_cut)
 all_mock_div
@@ -218,7 +147,7 @@ div_plot<-ggplot(data=all_mock_div,aes(x=blocks,y=ENS))+
   theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
   theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
   theme(axis.text.y=element_text(colour="black"))+
-  labs(x="",y="Effective Number of Species")+
+  labs(x="",y="Effective Number of Species")
 div_plot+theme(aspect.ratio=0.9)
 
 #Crop y axis
@@ -232,5 +161,131 @@ div_plot<-ggplot(data=all_mock_div,aes(x=blocks,y=ENS))+
   labs(x="",y="Effective Number of Species")+
   coord_cartesian(ylim=c(7,9))
 div_plot+theme(aspect.ratio=0.9)
+###################################################################
+##AGE##############################################################
+###################################################################
 
+##Stocked area data for both broadleaves and conifer species
+#Create mock dataset with AreaTotal as starting point 
+age_mock<-matrix(c(276,290,282,299,313,326,
+                       324,312,298,338,358,369,
+                       280,295,245,302,345,327,
+                       161,140,174,147,178,189,
+                       104,108,120,137,168,137,
+                       64,64,65,64,64,65),
+                     nrow=6,
+                     dimnames=list(c("2009-2014","2015-2020","2021-2025","2026-2030","2031-2035","2036-2040"),
+                                   c("0-20","21-40","41-60","61-80","81-100","100+")))
+age_melt<-melt(age_mock)
+colnames(age_melt)<-c("Block","AgeClass","TotalArea")
+age_melt<-as.data.frame(age_melt)
+sapply(age_melt,class)
+age_melt$AgeClass<-factor(age_melt$AgeClass,levels=c("0-20","21-40","41-60","61-80","81-100","100+"))
+plot<-ggplot(data=age_melt,aes(x=Block,y=TotalArea,fill=AgeClass))+
+  labs(y="Area (1000 ha)")+
+  geom_bar(stat="identity")+
+  scale_fill_brewer(palette="Set3")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1))+
+  theme(axis.title.x=element_blank())
+plot+theme(aspect.ratio=1)
+
+#Calculate Shannon and ENS
+age_all_div<-diversity(age_mock)
+years<-c("2009-2014","2015-2020","2021-2025","2026-2030","2031-2035","2036-2040")
+age_all_div<-data.frame(years,age_all_div)
+names(age_all_div)[names(age_all_div)=="age_all_div"]<-"Shannon"
+sapply(age_all_div,class)
+#Calculate ENS for all species 
+age_all_div$ENS<-exp(age_all_div$Shannon)
+age_plot<-ggplot(data=age_all_div,aes(x=years,y=ENS))+
+  geom_bar(stat="identity",fill="grey87",colour="black")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))+
+  labs(x="",y="Effective Number of Age Classes")
+age_plot+theme(aspect.ratio=0.9)
+#Calculate ENS for all species with croppped axis
+age_plot<-ggplot(data=age_all_div,aes(x=years,y=ENS))+
+  geom_bar(stat="identity",fill="grey87",colour="black")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))+
+  labs(x="",y="Effective Number of Age Classes")+
+  coord_cartesian(ylim=c(4,5.5))
+age_plot+theme(aspect.ratio=0.9)
+
+##############################################################
+##SIZE########################################################
+#############################################################
+#Stacked bar plots over time
+bl_mock<-matrix(c(70,79,89,93,100,105,
+                  127,114,132,157,165,181,
+                  201,165,198,234,253,267,
+                  172,189,143,158,189,212,
+                  157,157,176,162,166,172,
+                  84,89,93,93,98,100,
+                  73,73,74,76,80,76),
+                nrow=6,
+                dimnames=list(c("2009-2014","2015-2020","2021-2025","2025-2030","2031-2035","2036-2040"),
+                              c("0-10","11-20","21-40","41-60","61-80","81-100","100+")))
+
+
+bl_mock_melt<-melt(bl_mock)
+colnames(bl_mock_melt)<-c("Block","DBHClass","Total")
+bl_mock_melt<-as.data.frame(bl_mock_melt)
+sapply(bl_mock_melt,class)
+bl_mock_melt$DBHClass<-factor(bl_mock_melt$DBHClass,levels=c("0-10","11-20","21-40","41-60","61-80","81-100","100+"))
+size_plot<-ggplot(data=bl_mock_melt,aes(x=Block,y=Total,fill=DBHClass))+
+  labs(y="Area (1000 ha)")+
+  geom_bar(stat="identity")+
+  scale_fill_brewer(palette="Set3")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1))+
+  theme(axis.title.x=element_blank())
+size_plot+theme(aspect.ratio=0.9)
+
+#Calculate Shannon diversity
+blocks<-c("2009-2014","2015-2020","2021-2025","2026-2030","2031-2035","2036-2040")
+size_div<-diversity(bl_mock)
+size_div
+size_div<-data.frame(blocks,size_div)
+names(size_div)[names(size_div)=="size_div"]<-"Shannon"
+#Plot Shannon over time 
+ggplot(data=size_div,aes(x=blocks,y=Shannon))+
+  geom_bar(stat="identity",width=0.75,colour="black",fill="grey87")+
+  labs(x="",y="Shannon H")+
+  coord_cartesian(ylim=c(1.6,1.62))+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=50,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
+
+#Calculate ENS of DBH Broadleaves diversity
+size_div$ENS<-exp(size_div$Shannon)
+size_plot<-ggplot(data=size_div,aes(x=blocks,y=ENS))+
+  geom_bar(stat="identity",colour="black",fill="grey87")+
+  labs(x="",y="Effective Number of DBH Classes")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))
+size_plot+theme(aspect.ratio=0.9)
+#Cropped y axis
+size_plot<-ggplot(data=size_div,aes(x=blocks,y=ENS))+
+  geom_bar(stat="identity",colour="black",fill="grey87")+
+  labs(x="",y="Effective Number of DBH Classes")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1))+
+  theme(axis.text.x=element_text(colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))+
+  coord_cartesian(ylim=c(5,7))
+size_plot+theme(aspect.ratio=0.9)
 
