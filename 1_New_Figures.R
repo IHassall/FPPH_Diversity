@@ -26,6 +26,7 @@ library(reshape)
 #Interim estimates at March 2012 - data I was already using in other scripts 
 
 ###Change existing graphs so that mock data shows a general trend and more distinct changes###
+
 ##SPECIES##################################################
 #Generate mock dataset to show changes in SPECIES diversity over time
 #Based on area in thousand ha
@@ -161,6 +162,48 @@ div_plot<-ggplot(data=all_mock_div,aes(x=blocks,y=ENS))+
   labs(x="",y="Effective Number of Species")+
   coord_cartesian(ylim=c(7,9))
 div_plot+theme(aspect.ratio=0.9)
+
+#Make indicator species graphs over time
+#Corsican Pine
+cp<-filter(all_mock,Species=="Corsican pine")
+cp_plot<-ggplot(data=cp,aes(x=Block,y=Total,group=1))+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))+
+  labs(x="",y="Area (1000 ha)")+
+  scale_y_continuous(limits=c(0,60),breaks=seq(0,60,by=10))
+cp_plot+theme(aspect.ratio=0.9)+
+  ggtitle("Corsican Pine")
+
+#Larch
+lar<-filter(all_mock,Species=="Larches")
+lar_plot<-ggplot(lar,aes(Block,Total,group=1))+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  theme(panel.grid=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
+  labs(x="",y="Area (1000 ha)")+
+  scale_y_continuous(limits=c(0,60),breaks=seq(0,60,by=10))
+lar_plot+theme(aspect.ratio=0.9)+
+  ggtitle("Larches")
+
+#Calculate species evenness
+#H/ln(SR)
+all_mock_div=mutate(all_mock_div,Evenness=(Shannon/log(10)))
+even_plot<-ggplot(data=all_mock_div,aes(x=blocks,y=Evenness))+
+  geom_bar(stat="identity",fill="grey87",colour="black")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))+
+  labs(x="",y="Species Evenness")+
+  coord_cartesian(ylim=c(0.8,1))
+even_plot+theme(aspect.ratio=0.9)
+
 ###################################################################
 ##AGE##############################################################
 ###################################################################
@@ -217,6 +260,19 @@ age_plot<-ggplot(data=age_all_div,aes(x=years,y=ENS))+
   labs(x="",y="Effective Number of Age Classes")+
   coord_cartesian(ylim=c(4,5.5))
 age_plot+theme(aspect.ratio=0.9)
+
+#Calculate age class evenness
+#H/ln(SR)
+age_all_div=mutate(age_all_div,Evenness=(Shannon/log(6)))
+even_plot<-ggplot(data=age_all_div,aes(x=years,y=Evenness))+
+  geom_bar(stat="identity",fill="grey87",colour="black")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))+
+  labs(x="",y="Age Class Evenness")+
+  coord_cartesian(ylim=c(0.8,1))
+even_plot+theme(aspect.ratio=0.9)
 
 ##############################################################
 ##SIZE########################################################
@@ -289,3 +345,15 @@ size_plot<-ggplot(data=size_div,aes(x=blocks,y=ENS))+
   coord_cartesian(ylim=c(5,7))
 size_plot+theme(aspect.ratio=0.9)
 
+#Generate size class evenness
+#H/ln(SR)
+size_div=mutate(size_div,Evenness=(Shannon/log(7)))
+even_plot<-ggplot(data=size_div,aes(x=blocks,y=Evenness))+
+  geom_bar(stat="identity",fill="grey87",colour="black")+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())+
+  theme(axis.text.x=element_text(angle=45,hjust=1,colour="black"))+
+  theme(axis.text.y=element_text(colour="black"))+
+  labs(x="",y="DBH Class Evenness")+
+  coord_cartesian(ylim=c(0.8,1))
+even_plot+theme(aspect.ratio=0.9)
