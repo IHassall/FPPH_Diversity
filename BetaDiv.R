@@ -75,3 +75,8 @@ mean(beta)
 #[1] 0.3399075
 
 betadiver(help=TRUE)
+
+############################################################
+#Practice from http://rfunctions.blogspot.com/2016/08/measuring-and-comparing-beta-diversity.html 
+library(betapart)
+library(vegan)
